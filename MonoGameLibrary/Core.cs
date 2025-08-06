@@ -8,9 +8,9 @@ namespace MonoGameLibrary;
 public class Core : Game
 {
     // Singleton
-   internal static Core s_instance;
+    private static Core _sInstance;
 
-    public static Core Instance => s_instance;
+    public static Core Instance => _sInstance;
     
     public static GraphicsDeviceManager Graphics { get; private set; }
     
@@ -23,13 +23,13 @@ public class Core : Game
     public Core(string title, int width, int height, bool fullScreen)
     {
         // Ensure that multiple cores are not created.
-        if (s_instance != null)
+        if (_sInstance != null)
         {
             throw new InvalidOperationException($"Only one instance of the {nameof(Core)} is allowed.");
         }
         
         // Store reference to engine for global member access.
-        s_instance = this;
+        _sInstance = this;
         
         // Create a new graphics device manager.
         Graphics = new GraphicsDeviceManager(this);
