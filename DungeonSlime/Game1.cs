@@ -9,11 +9,9 @@ namespace DungeonSlime;
 public class Game1 : Core
 {
     private Texture2D _logo;
-    private float _rotation;
     
     public Game1(): base("Dungeon Slime", 1280, 720, false)
     {
-        _rotation = 0.0f;
     }
 
     protected override void Initialize()
@@ -34,8 +32,6 @@ public class Game1 : Core
             Exit();
 
         // TODO: Add your update logic here
-        // Make the logo spin. Whee!!!
-        // _rotation += 0.005f;
 
         base.Update(gameTime);
     }
@@ -59,9 +55,9 @@ public class Game1 : Core
             new Vector2(        // position
                 Window.ClientBounds.Width,
                 Window.ClientBounds.Height) * 0.5f,
-            iconSourceRect,               // source rect
+            iconSourceRect,     // source rect
             Color.White,        // color mask tint
-            (float)Math.PI * _rotation,
+            0.0f,               // rotation
             new Vector2(        // origin
                 iconSourceRect.Width,
                 iconSourceRect.Height) * 0.5f,
@@ -76,9 +72,9 @@ public class Game1 : Core
             new Vector2(        // position
                 Window.ClientBounds.Width,
                 Window.ClientBounds.Height) * 0.5f,
-            wordmarkSourceRect,               // source rect
+            wordmarkSourceRect, // source rect
             Color.White,        // color mask tint
-            (float)Math.PI * _rotation,
+            0.0f,               // rotation
             new Vector2(        // origin
                 wordmarkSourceRect.Width,
                 wordmarkSourceRect.Height) * 0.5f,
