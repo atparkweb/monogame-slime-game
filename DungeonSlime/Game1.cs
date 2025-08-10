@@ -9,10 +9,11 @@ namespace DungeonSlime;
 public class Game1 : Core
 {
     private Texture2D _logo;
+    private float _rotation;
     
     public Game1(): base("Dungeon Slime", 1280, 720, false)
     {
-        
+        _rotation = 0.0f;
     }
 
     protected override void Initialize()
@@ -33,6 +34,8 @@ public class Game1 : Core
             Exit();
 
         // TODO: Add your update logic here
+        // Make the logo spin. Whee!!!
+        // _rotation += 0.005f;
 
         base.Update(gameTime);
     }
@@ -40,21 +43,46 @@ public class Game1 : Core
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        
+        // The bounds of the icon within the texture.
+        Rectangle iconSourceRect = new Rectangle(0, 0, 128, 128);
+        
+        // The bounds of the word mark within the texture.
+        Rectangle wordmarkSourceRect = new Rectangle(150, 34, 458, 58);
 
         // Begin sprite batch to prepare for rendering
-        SpriteBatch.Begin();
+        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack);
         
-        // Draw the logo texture
+        // Draw only the icon portion of the texture
         SpriteBatch.Draw(
             _logo,              // texture
             new Vector2(        // position
-                (Window.ClientBounds.Width * 0.5f) - (_logo.Width * 0.25f),
-                (Window.ClientBounds.Height * 0.5f) - (_logo.Height * 0.25f)),
-            null,               // source rect
+                Window.ClientBounds.Width,
+                Window.ClientBounds.Height) * 0.5f,
+            iconSourceRect,               // source rect
             Color.White,        // color mask tint
-            0.0f,               // rotation
-            Vector2.Zero,       // origin
-            0.5f,               // scale
+            (float)Math.PI * _rotation,
+            new Vector2(        // origin
+                iconSourceRect.Width,
+                iconSourceRect.Height) * 0.5f,
+            1.5f,               // scale
+            SpriteEffects.None, // effects
+            1.0f                // layer depth
+        );
+        
+        // Draw only the word mark portion of the texture
+        SpriteBatch.Draw(
+            _logo,              // texture
+            new Vector2(        // position
+                Window.ClientBounds.Width,
+                Window.ClientBounds.Height) * 0.5f,
+            wordmarkSourceRect,               // source rect
+            Color.White,        // color mask tint
+            (float)Math.PI * _rotation,
+            new Vector2(        // origin
+                wordmarkSourceRect.Width,
+                wordmarkSourceRect.Height) * 0.5f,
+            1.0f,               // scale
             SpriteEffects.None, // effects
             0.0f                // layer depth
         );
