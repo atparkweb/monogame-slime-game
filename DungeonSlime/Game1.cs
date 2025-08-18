@@ -10,11 +10,11 @@ namespace DungeonSlime;
 public class Game1 : Core
 {
 
-    // Defines the slime sprite
-    private Sprite slime;
+    // Defines the slime animated sprite.
+    private AnimatedSprite slime;
     
-    // Defines the bat sprite
-    private Sprite bat;
+    // Defines the bat animated sprite.
+    private AnimatedSprite bat;
     
     public Game1(): base("Dungeon Slime", 1280, 720, false)
     {
@@ -31,13 +31,11 @@ public class Game1 : Core
         var atlas =
             TextureAtlas.FromFile(Content, "images/atlas-definition.xml");
         
-        slime = atlas.CreateSprite("slime");
+        slime = atlas.CreateAnimatedSprite("slime-animation");
         slime.Scale = new Vector2(4.0f, 4.0f);
-        slime.Color = Color.LimeGreen;
         
-        bat = atlas.CreateSprite("bat");
+        bat = atlas.CreateAnimatedSprite("bat-animation");
         bat.Scale = new Vector2(4.0f, 4.0f);
-        bat.Color = Color.Red;
     }
 
     protected override void Update(GameTime gameTime)
@@ -46,7 +44,8 @@ public class Game1 : Core
             ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        slime.Update(gameTime);
+        bat.Update(gameTime);
 
         base.Update(gameTime);
     }
