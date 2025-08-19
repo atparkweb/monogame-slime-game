@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -22,13 +23,17 @@ public class Game1 : Core
     // Speed multiplier when moving.
     private const float MOVEMENT_SPEED = 5.0f;
     
+    // Use a queue directly for input buffering.
+    private Queue<Vector2> inputBuffer;
+    private const int MAX_BUFFER_SIZE = 2;
+    
     public Game1(): base("Dungeon Slime", 1280, 720, false)
     {
     }
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        inputBuffer = new Queue<Vector2>(MAX_BUFFER_SIZE);
         base.Initialize();
     }
 
@@ -53,11 +58,23 @@ public class Game1 : Core
         slime.Update(gameTime);
         bat.Update(gameTime);
 
-        // Check for keyboard input and handle it.
-        CheckKeyboardInput();
-        
         // Check for gamepad input and handle it.
-        CheckGamePadInput();
+        GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+        if (gamePadState.IsConnected)
+        {
+            CheckGamePadInput();
+        }
+        else
+        {
+            // Check for keyboard input and handle it.
+            CheckKeyboardInput();
+            if (inputBuffer.Count > 0)
+            {
+                Vector2 nextDirection = inputBuffer.Dequeue();
+                slimePosition += nextDirection;
+            }
+ 
+        }
 
         base.Update(gameTime);
     }
@@ -66,6 +83,7 @@ public class Game1 : Core
     {
         // Get the state of the keyboard input.
         KeyboardState keyboardState = Keyboard.GetState();
+        Vector2 newDirection = Vector2.Zero;
         
         // If the space bar is held down increase the movement speed.
         float speed = MOVEMENT_SPEED;
@@ -78,28 +96,33 @@ public class Game1 : Core
         if (keyboardState.IsKeyDown(Keys.W) ||
             keyboardState.IsKeyDown(Keys.Up))
         {
-            slimePosition.Y -= speed;
+            newDirection = -Vector2.UnitY;
         }
 
         // If S or Down keys are down, move the slime down on the screen
         if (keyboardState.IsKeyDown(Keys.S) ||
             keyboardState.IsKeyDown(Keys.Down))
         {
-            slimePosition.Y += speed;
+            newDirection = Vector2.UnitY;
         }
         
         // If A or Left keys are down, move the slime left on the screen
         if (keyboardState.IsKeyDown(Keys.A) ||
             keyboardState.IsKeyDown(Keys.Left))
         {
-            slimePosition.X -= speed;
+            newDirection = -Vector2.UnitX;
         }
 
         // If D or Right keys are down, move the slime right on the screen
         if (keyboardState.IsKeyDown(Keys.D) ||
             keyboardState.IsKeyDown(Keys.Right))
         {
-            slimePosition.X += speed;
+            newDirection = Vector2.UnitX;
+        }
+
+        if (newDirection != Vector2.Zero && inputBuffer.Count < MAX_BUFFER_SIZE)
+        {
+            inputBuffer.Enqueue(newDirection * speed);
         }
     }
 
