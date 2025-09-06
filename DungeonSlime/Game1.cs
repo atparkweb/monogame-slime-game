@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
+using MonoGameLibrary.Input;
 
 namespace DungeonSlime;
 
@@ -58,121 +59,100 @@ public class Game1 : Core
         slime.Update(gameTime);
         bat.Update(gameTime);
 
-        // Check for gamepad input and handle it.
-        GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-        if (gamePadState.IsConnected)
-        {
-            CheckGamePadInput();
-        }
-        else
-        {
-            // Check for keyboard input and handle it.
-            CheckKeyboardInput();
-            if (inputBuffer.Count > 0)
-            {
-                Vector2 nextDirection = inputBuffer.Dequeue();
-                slimePosition += nextDirection;
-            }
- 
-        }
+        // Check for keyboard input and handle it.
+        CheckKeyboardInput();
 
+        // Check for gamepad input and handle it.
+        CheckGamePadInput();
+        
         base.Update(gameTime);
     }
 
     private void CheckKeyboardInput()
     {
-        // Get the state of the keyboard input.
-        KeyboardState keyboardState = Keyboard.GetState();
-        Vector2 newDirection = Vector2.Zero;
-        
         // If the space bar is held down increase the movement speed.
         float speed = MOVEMENT_SPEED;
-        if (keyboardState.IsKeyDown(Keys.Space))
+        if (Input.Keyboard.IsKeyDown(Keys.Space))
         {
             speed *= 1.5f;
         }
         
         // If W or Up keys are down, move the slime up on the screen
-        if (keyboardState.IsKeyDown(Keys.W) ||
-            keyboardState.IsKeyDown(Keys.Up))
+        if (Input.Keyboard.IsKeyDown(Keys.W) ||
+            Input.Keyboard.IsKeyDown(Keys.Up))
         {
-            newDirection = -Vector2.UnitY;
+            slimePosition.Y -= speed;
         }
 
         // If S or Down keys are down, move the slime down on the screen
-        if (keyboardState.IsKeyDown(Keys.S) ||
-            keyboardState.IsKeyDown(Keys.Down))
+        if (Input.Keyboard.IsKeyDown(Keys.S) ||
+            Input.Keyboard.IsKeyDown(Keys.Down))
         {
-            newDirection = Vector2.UnitY;
+            slimePosition.Y += speed;
         }
         
         // If A or Left keys are down, move the slime left on the screen
-        if (keyboardState.IsKeyDown(Keys.A) ||
-            keyboardState.IsKeyDown(Keys.Left))
+        if (Input.Keyboard.IsKeyDown(Keys.A) ||
+            Input.Keyboard.IsKeyDown(Keys.Left))
         {
-            newDirection = -Vector2.UnitX;
+            slimePosition.X -= speed;
         }
 
         // If D or Right keys are down, move the slime right on the screen
-        if (keyboardState.IsKeyDown(Keys.D) ||
-            keyboardState.IsKeyDown(Keys.Right))
+        if (Input.Keyboard.IsKeyDown(Keys.D) ||
+            Input.Keyboard.IsKeyDown(Keys.Right))
         {
-            newDirection = Vector2.UnitX;
-        }
-
-        if (newDirection != Vector2.Zero && inputBuffer.Count < MAX_BUFFER_SIZE)
-        {
-            inputBuffer.Enqueue(newDirection * speed);
+            slimePosition.X += speed;
         }
     }
 
     private void CheckGamePadInput()
     {
-        GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+        GamePadInfo gamePadOne = Input.GamePads[(int)PlayerIndex.One];
 
         // If the A button is held down, the movement speed increases by 1.5
         // and the gamepad vibrates as feedback to the player.
         float speed = MOVEMENT_SPEED;
-        if (gamePadState.IsButtonDown(Buttons.A))
+        if (gamePadOne.IsButtonDown(Buttons.A))
         {
             speed *= 1.5f;
-            GamePad.SetVibration(PlayerIndex.One, 1.0f, 1.0f);
+            gamePadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
         }
         else
         {
-            GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
+            gamePadOne.StopVibration();
         }
         
         // Check thumbstick first since it has priority over which gamepad input
         // is movement.  It has priority since the thumbstick values provide a
         // more granular analog value that can be used for movement.
-        if (gamePadState.ThumbSticks.Left != Vector2.Zero)
+        if (gamePadOne.LeftThumbStick != Vector2.Zero)
         {
-            slimePosition.X += gamePadState.ThumbSticks.Left.X * speed;
-            slimePosition.Y -= gamePadState.ThumbSticks.Left.Y * speed;
+            slimePosition.X += gamePadOne.LeftThumbStick.X * speed;
+            slimePosition.Y -= gamePadOne.LeftThumbStick.Y * speed;
         }
         else
         {
             // If DPadUp is down, move the slime up on the screen.
-            if (gamePadState.IsButtonDown(Buttons.DPadUp))
+            if (gamePadOne.IsButtonDown(Buttons.DPadUp))
             {
                 slimePosition.Y -= speed;
             }
 
             // If DPadDown is down, move the slime down on the screen.
-            if (gamePadState.IsButtonDown(Buttons.DPadDown))
+            if (gamePadOne.IsButtonDown(Buttons.DPadDown))
             {
                 slimePosition.Y += speed;
             }
 
             // If DPapLeft is down, move the slime left on the screen.
-            if (gamePadState.IsButtonDown(Buttons.DPadLeft))
+            if (gamePadOne.IsButtonDown(Buttons.DPadLeft))
             {
                 slimePosition.X -= speed;
             }
 
             // If DPadRight is down, move the slime right on the screen.
-            if (gamePadState.IsButtonDown(Buttons.DPadRight))
+            if (gamePadOne.IsButtonDown(Buttons.DPadRight))
             {
                 slimePosition.X += speed;
             }
